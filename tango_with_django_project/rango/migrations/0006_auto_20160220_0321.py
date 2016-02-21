@@ -7,12 +7,13 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rango', '0006_auto_20160131_0041'),
+        ('rango', '0005_auto_20160220_0253'),
     ]
 
     operations = [
-        migrations.RenameModel(
-            old_name='Like',
-            new_name='likes',
+        migrations.AlterField(
+            model_name='page',
+            name='url',
+            field=models.URLField(max_length=255),
         ),
     ]

@@ -7,19 +7,18 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rango', '0005_category_slug'),
+        ('rango', '0009_auto_20160220_1420'),
     ]
 
     operations = [
-        migrations.RenameField(
+        migrations.AlterField(
             model_name='category',
-            old_name='like',
-            new_name='likes',
+            name='likes',
+            field=models.IntegerField(default=0),
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='category',
             name='views',
             field=models.IntegerField(default=0),
-            preserve_default=True,
         ),
     ]
