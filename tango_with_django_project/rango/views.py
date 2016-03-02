@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from datetime import datetime
 
 
 # Create your views here.
@@ -13,7 +14,40 @@ from rango.forms import PageForm
 from rango.forms import UserForm, UserProfileForm
 
 def index(request):
-    
+
+    category_list = Category.objects.order_by('-likes')[:5]
+    page_list = Page.objects.order_by('-views')[:5]
+
+    context_dict = {'categories': category_list, 'pages': page_list}
+
+    visits = request.session.get('visits')
+    if not visits:
+        visits = 1
+    reset_last_visit_time = False
+
+    last_visit = request.session.get('last_visit')
+    if last_visit:
+        last_visit_time = datetime.strptime(last_visit[:-7], "%Y-%m-%d %H:%M:%S")
+
+        if (datetime.now() - last_visit_time).seconds > 0:
+            # ...reassign the value of the cookie to +1 of what it was before...
+            visits = visits + 1
+            # ...and update the last visit cookie, too.
+            reset_last_visit_time = True
+    else:
+        # Cookie last_visit doesn't exist, so create it to the current date/time.
+        reset_last_visit_time = True
+
+    if reset_last_visit_time:
+        request.session['last_visit'] = str(datetime.now())
+        request.session['visits'] = visits
+    context_dict['visits'] = visits
+
+
+    response = render(request,'rango/index.html', context_dict)
+
+    return response
+
     # Construct a dictionary to pass to the template engine as its context.
     # Note the key boldmessage is the same as {{ boldmessage }} in the template!
     category_list = Category.objects.order_by('-likes')
@@ -113,19 +147,20 @@ def add_page(request, category_name_slug):
 
 
 def about(request):
-	return HttpResponse(" <br/> <a href='/rango/'>Index</a> Rango says here is the about page. ")
+
+
+	return HttpResponse("  Rango says here is the about page. ")
 
 
 def register(request):
 
-    # A boolean value for telling the template whether the registration was successful.
-    # Set to False initially. Code changes value to True when registration succeeds.
+
     registered = False
 
-    # If it's a HTTP POST, we're interested in processing form data.
+
+
     if request.method == 'POST':
-        # Attempt to grab information from the raw form information.
-        # Note that we make use of both UserForm and UserProfileForm.
+
         user_form = UserForm(data=request.POST)
         profile_form = UserProfileForm(data=request.POST)
 
@@ -216,6 +251,11 @@ def user_login(request):
 
 
    # Use the login_required() decorator to ensure only those logged in can access the view.
+
+@login_required
+def restricted(request):
+    return HttpResponse("Since you're logged in, you can see this text!")
+
 @login_required
 def user_logout(request):
     # Since we know the user is logged in, we can now just log them out.
