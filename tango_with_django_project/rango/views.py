@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from datetime import datetime
+from django.template import RequestContext
+
 
 
 # Create your views here.
@@ -149,7 +151,8 @@ def add_page(request, category_name_slug):
 def about(request):
 
 
-	return HttpResponse("  Rango says here is the about page. ")
+	return render(request, 'rango/about.html' )
+
 
 
 def register(request):
